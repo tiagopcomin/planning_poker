@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planning Poker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Planning Poker</h1>
+    <div class="controls">
+      <input id="roomInput" placeholder="Sala (ex: sprint1)">
+      <input id="userInput" placeholder="Seu nome">
+      <button id="joinBtn">Entrar</button>
+      <button id="resetBtn">Reiniciar votos</button>
+    </div>
+    <div class="cards" id="cards"></div>
+    <div class="results" id="results"></div>
+  </div>
+  <script src="https://cdn.socket.io/4.7.1/socket.io.min.js"></script>
+  <script>
+    const socket = io('http://' + location.hostname + ':5000');
+    let room, user;
+
+    document.getElementById('joinBtn').onclick = () => {
+      room = document.getElementById('roomInput').value;
+      user = document.getElementById('userInput').value;
+      if (!room || !user) return alert('Informe sala e nome!');
+      socket.emit('join', { room });
+      renderCards();
+    };
+
+    document.getElementById('resetBtn').onclick = () => {
+      if (room) socket.emit('reset', { room });
+    };
+
+    socket.on('state', state => renderResults(state));
+
+    const values = ['½','1','2','3','5','8','13','20','?'];
+
+    function renderCards() {
+      const cardsDiv = document.getElementById('cards');
+      cardsDiv.innerHTML = '';
+      values.forEach(v => {
+        const btn = document.createElement('button');
+        btn.textContent = v;
+        btn.onclick = () => socket.emit('vote', { room, user, value: v });
+        cardsDiv.appendChild(btn);
+      });
+    }
+
+    function renderResults(state) {
+      const resDiv = document.getElementById('results');
+      resDiv.innerHTML = '<h2>Resultados</h2>';
+      Object.entries(state).forEach(([u, v]) => {
+        const p = document.createElement('p');
+        p.textContent = `${u}: ${v}`;
+        resDiv.appendChild(p);
+      });
+    }
+  </script>
+</body>
+</html>
