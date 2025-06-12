@@ -9,54 +9,111 @@
 <body>
   <div class="container">
     <h1>Planning Poker</h1>
-    <div class="controls">
-      <input id="roomInput" placeholder="Sala (ex: sprint1)">
+    <div class="controls" id="controls">
+      <input id="roomInput" placeholder="Sala" autofocus>
       <input id="userInput" placeholder="Seu nome">
       <button id="joinBtn">Entrar</button>
-      <button id="resetBtn">Reiniciar votos</button>
     </div>
-    <div class="cards" id="cards"></div>
-    <div class="results" id="results"></div>
+
+    <div id="roomSection" style="display:none;">
+      <h2 id="roomNameDisplay"></h2>
+      <h3 id="taskDisplay">Nenhuma task definida</h3>
+
+      <div class="task-controls">
+        <input id="taskInput" placeholder="Definir task">
+        <button id="setTaskBtn">Definir Task</button>
+      </div>
+
+      <div class="cards" id="cards"></div>
+
+      <div class="post-vote-controls">
+        <button id="revealBtn">Revelar Votos</button>
+        <button id="resetBtn">Reiniciar</button>
+      </div>
+
+      <div id="participants">
+        <h3>Participantes</h3>
+        <ul id="participantList"></ul>
+      </div>
+
+      <div id="results"></div>
+    </div>
   </div>
+
   <script src="https://cdn.socket.io/4.7.1/socket.io.min.js"></script>
   <script>
-    const socket = io('http://' + location.hostname + ':5000');
-    let room, user;
+    // DOM
+    const controls = document.getElementById('controls');
+    const roomInput = document.getElementById('roomInput');
+    const userInput = document.getElementById('userInput');
+    const joinBtn = document.getElementById('joinBtn');
+    const roomSection = document.getElementById('roomSection');
+    const roomNameDisplay = document.getElementById('roomNameDisplay');
+    const taskInput = document.getElementById('taskInput');
+    const setTaskBtn = document.getElementById('setTaskBtn');
+    const revealBtn = document.getElementById('revealBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const taskDisplay = document.getElementById('taskDisplay');
+    const cardsContainer = document.getElementById('cards');
+    const participantList = document.getElementById('participantList');
+    const results = document.getElementById('results');
 
-    document.getElementById('joinBtn').onclick = () => {
-      room = document.getElementById('roomInput').value;
-      user = document.getElementById('userInput').value;
-      if (!room || !user) return alert('Informe sala e nome!');
-      socket.emit('join', { room });
+    const socket = io();
+    let room = '';
+    let user = '';
+    const values = ['1','2','3','5','8','13','21','34'];
+
+    // Join
+    joinBtn.addEventListener('click', () => {
+      room = roomInput.value.trim();
+      user = userInput.value.trim();
+      if (!room || !user) return alert('Sala e nome são obrigatórios');
+      socket.emit('join', { room, user });
+      controls.style.display = 'none';
+      roomSection.style.display = 'block';
+      roomNameDisplay.textContent = `Sala: ${room}`;
       renderCards();
-    };
+    });
 
-    document.getElementById('resetBtn').onclick = () => {
-      if (room) socket.emit('reset', { room });
-    };
+    // Set task
+    setTaskBtn.addEventListener('click', () => {
+      const task = taskInput.value.trim();
+      if (!task) return alert('Defina uma task');
+      socket.emit('set_task', { room, task });
+      taskInput.value = '';
+    });
 
-    socket.on('state', state => renderResults(state));
+    // Reveal & Reset
+    revealBtn.addEventListener('click', () => socket.emit('reveal', { room }));
+    resetBtn.addEventListener('click', () => socket.emit('reset', { room }));
 
-    const values = ['½','1','2','3','5','8','13','20','?'];
+    // Receive updates
+    socket.on('room_data', data => {
+      taskDisplay.textContent = data.task || 'Nenhuma task definida';
+      // Participants & vote status
+      participantList.innerHTML = '';
+      (data.participants || []).forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p + (data.voted.includes(p) ? ' ✔️' : ' ⏳');
+        participantList.appendChild(li);
+      });
+      // Votes reveal
+      if (data.revealed) {
+        results.innerHTML = '<h3>Votos</h3>' +
+          Object.entries(data.votes).map(([u,v]) => `<p>${u}: ${v}</p>`).join('');
+      } else {
+        results.innerHTML = '';
+      }
+    });
 
+    // Render voting cards
     function renderCards() {
-      const cardsDiv = document.getElementById('cards');
-      cardsDiv.innerHTML = '';
+      cardsContainer.innerHTML = '';
       values.forEach(v => {
         const btn = document.createElement('button');
         btn.textContent = v;
-        btn.onclick = () => socket.emit('vote', { room, user, value: v });
-        cardsDiv.appendChild(btn);
-      });
-    }
-
-    function renderResults(state) {
-      const resDiv = document.getElementById('results');
-      resDiv.innerHTML = '<h2>Resultados</h2>';
-      Object.entries(state).forEach(([u, v]) => {
-        const p = document.createElement('p');
-        p.textContent = `${u}: ${v}`;
-        resDiv.appendChild(p);
+        btn.addEventListener('click', () => socket.emit('vote', { room, user, value: v }));
+        cardsContainer.appendChild(btn);
       });
     }
   </script>

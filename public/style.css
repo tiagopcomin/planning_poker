@@ -1,7 +1,178 @@
-body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; }
-.container { max-width: 600px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.controls input { margin-right: 8px; padding: 6px; }
-.controls button { margin-right: 4px; padding: 6px 12px; }
-.cards { margin: 20px 0; }
-.cards button { margin: 4px; padding: 12px 18px; font-size: 16px; cursor: pointer; }
-.results p { margin: 4px 0; }
+/* Layout geral */
+body {
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cabeçalho */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Controls iniciais */
+.controls, .task-controls, .post-vote-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+.controls input, .task-controls input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.controls button, .task-controls button, .post-vote-controls button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #007bff;
+  color: #fff;
+  transition: background 0.2s;
+}
+.controls button:hover, .task-controls button:hover, .post-vote-controls button:hover {
+  background: #0056b3;
+}
+
+/* Cartões de votação */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-evenly;
+  margin-bottom: 20px;
+}
+.cards button {
+  flex: 1 1 50px; /* permite encolher abaixo de 60px se necessário */
+  min-width: 40px;
+  max-width: 80px;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #007bff;
+  border-radius: 6px;
+  background: #fff;
+  color: #007bff;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.cards button:hover {
+  background: #007bff;
+  color: #fff;
+}
+
+/* Lista de participantes */
+#participants {
+  margin-top: 20px;
+}
+#participants ul {
+  list-style: none;
+  padding: 0;
+}
+#participants li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Resultados */
+#results {
+  margin-top: 20px;
+  text-align: center;
+}
+#results h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+#results p {
+  margin: 4px 0;
+}
+
+/* Layout geral - Dark mode */
+body {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+.container {
+  background: #1e1e1e;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* Cabeçalho */
+h1 {
+  color: #ffffff;
+}
+
+/* Inputs */
+.controls input, .task-controls input {
+  background-color: #2c2c2c;
+  color: #ffffff;
+  border: 1px solid #444;
+}
+
+/* Botões */
+.controls button, .task-controls button, .post-vote-controls button {
+  background: #2196f3;
+  color: #fff;
+}
+.controls button:hover, .task-controls button:hover, .post-vote-controls button:hover {
+  background: #1976d2;
+}
+
+/* Cartões de votação */
+.cards button {
+  background: #2c2c2c;
+  color: #90caf9;
+  border: 1px solid #90caf9;
+}
+.cards button:hover {
+  background: #90caf9;
+  color: #1e1e1e;
+}
+
+/* Lista de participantes */
+#participants li {
+  border-bottom: 1px solid #333;
+}
+
+/* Resultados */
+#results h3 {
+  color: #ffffff;
+}
+#results p {
+  color: #e0e0e0;
+}
+
+/* Botões principais */
+.controls button, .task-controls button, .post-vote-controls button {
+  background: #09538d;
+  color: #fff;
+}
+.controls button:hover, .task-controls button:hover, .post-vote-controls button:hover {
+  background: #06385e;
+}
+
+/* Cartões de votação */
+.cards button {
+  border: 1px solid #09538d;
+  color: #64b5f6;
+  background: #2c2c2c;
+}
+.cards button:hover {
+  background: #09538d;
+  color: #fff;
+}
